@@ -1,0 +1,41 @@
+name: Percy Visual Tests
+ 
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+ 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+ 
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+ 
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+ 
+      - name: Install dependencies
+        run: mvn clean install -DskipTests
+ 
+      - name: Run TestNG Tests
+        run: mvn test
+ 
+      - name: Upload Percy snapshots
+        run: mvn exec:java -Dexec.mainClass="com.percy.Main"
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
