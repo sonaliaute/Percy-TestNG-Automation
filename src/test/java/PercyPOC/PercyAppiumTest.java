@@ -22,15 +22,15 @@ public class PercyAppiumTest {
     public void testVisual() {
         try {
             // Open webpage
-            driver.get("https://www.bajajfinserv.in/gold-loan");
+            driver.get("https://cont-sites.bajajfinserv.in/investments");
             Thread.sleep(6000);
 
-            percy.snapshot("DesktopPDP");
+            percy.snapshot("InvestmentMallPDP");
 
-            driver.get("https://hamaramall.com");
+          //  driver.get("https://hamaramall.com");
             Thread.sleep(6000);
             // Take a Percy snapshot
-            percy.snapshot("Bajaj Hamaramall Homepage");
+        //    percy.snapshot("Bajaj Hamaramall Homepage");
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
