@@ -1,41 +1,40 @@
-name: Percy Visual Tests
- 
+name: Percy Visual Test CI
+
 on:
   push:
-    branches:
-      - main
+    branches: [ main, master ]
   pull_request:
-    branches:
-      - main
- 
+    branches: [ main, master ]
+
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
- 
+    
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
- 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
- 
-      - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
- 
-      - name: Install dependencies
-        run: mvn clean install -DskipTests
- 
-      - name: Run TestNG Tests
-        run: mvn test
- 
-      - name: Upload Percy snapshots
-        run: mvn exec:java -Dexec.mainClass="com.percy.Main"
-        env:
-          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Install Percy CLI
+      run: npm install -g @percy/cli
+    
+    - name: Set Percy token as secret variable
+      run: echo "PERCY_TOKEN=${{ secrets.PERCY_TOKEN }}" >> $GITHUB_ENV
+    
+    - name: Build with Maven
+      run: mvn clean install -DskipTests
+    
+    - name: Run Tests
+      run: mvn test -Dtest=BajajiDemoTest
+    
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: target/surefire-reports/
